@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class UserDao {
 
     fun getUserName(userId:String): LiveData<Resource<String>> {
-        var userName = MutableLiveData<Resource<String>>()
+        val userName = MutableLiveData<Resource<String>>()
         FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
@@ -24,5 +24,19 @@ class UserDao {
         }
 
         return userName
+    }
+
+    fun postEventData(email:String, name:String, surname:String, dollarqty:Int):LiveData<Resource<Boolean>>{
+        val datastatus = MutableLiveData<Resource<Boolean>>()
+        val userData = User(email,name,surname,dollarqty)
+        FirebaseFirestore.getInstance()
+            .collection("purchases")
+            .add(userData)
+            .addOnCompleteListener {
+                if(it.isSuccessful) datastatus.value = Resource.success(true)
+            }.addOnFailureListener {
+                datastatus.value = Resource.error(it.message!!,false)
+            }
+        return datastatus
     }
 }

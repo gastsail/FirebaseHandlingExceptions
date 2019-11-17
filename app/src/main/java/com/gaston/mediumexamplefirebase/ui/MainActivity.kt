@@ -2,6 +2,8 @@ package com.gaston.mediumexamplefirebase.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.gaston.mediumexamplefirebase.R
@@ -19,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         observeForUserDetails("Gaston")
+        sendData()
     }
 
     fun observeForUserDetails(userId: String) {
@@ -30,5 +33,42 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+    }
+
+    fun showProgress(){
+        progressBar.visibility = View.VISIBLE
+        btn_enviar.isEnabled = false
+    }
+
+    fun hideProgress(){
+        progressBar.visibility = View.GONE
+        btn_enviar.isEnabled = true
+    }
+
+    fun sendData(){
+        btn_enviar.setOnClickListener {
+            showProgress()
+            val email = etxtemail.text.toString().trim()
+            val name = etxtname.text.toString().trim()
+            val surname = etxtsurname.text.toString().trim()
+            val buydollars = etxtbuy.text.toString().toInt()
+            if(email.isNotEmpty() && name.isNotEmpty() && surname.isNotEmpty() && buydollars >= 0){
+                viewModel.sendDataToFirebase(email,name,surname,buydollars).observe(this, Observer {
+                    when(it.status){
+                        Status.SUCCESS -> {
+                            hideProgress()
+                            Toast.makeText(this,"Gracias por su compra !",Toast.LENGTH_SHORT).show()
+                        }
+                        Status.ERROR -> {
+                            hideProgress()
+                            Toast.makeText(this,"Hubo un problema al procesar su compra: ${it.message}",Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {Toast.makeText(this,"Hubo un problema, vuelva a intentarlo",Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                })
+            }
+        }
+
     }
 }

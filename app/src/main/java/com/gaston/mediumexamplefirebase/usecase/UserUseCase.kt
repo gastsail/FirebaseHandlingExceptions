@@ -13,4 +13,8 @@ class UserUseCase {
     fun retrieveUserData(userId:String): LiveData<Resource<String>> {
         return userDao.getUserName(userId)
     }
+
+    fun postData(email:String,name:String,surname:String,dollarqty:Int):LiveData<Resource<Boolean>>{
+        return userDao.postEventData(email,name,surname,dollarqty)
+    }
 }
